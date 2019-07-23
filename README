@@ -1,5 +1,14 @@
 vis_sample - Python Package for visibility sampling
     Forked from https://github.com/AstroChem/vis_sample and updated to Python 3.7
+    
+    Installation:
+      #Get casa python tools:
+      #More info here, https://github.com/pkgw/conda-recipes
+      conda install -c pkgw-forge -c conda-forge casa-python
+      #clone/download this repository
+      cd vis_sample/
+      pip install --user .
+      
 ====================================================
 
   Purpose:

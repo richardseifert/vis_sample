@@ -56,15 +56,16 @@ def create_gcf_holder(uu, vv, vis):
 
     if npix_u > 5:
         du = vis.uu[3] - vis.uu[2]
-        iu0 = npix_u/2 + np.round((uu/du)).astype(int)
+        iu0 = npix_u//2 + np.round((uu/du)).astype(int)
 
     if npix_v > 5:
         dv = vis.vv[3] - vis.vv[2]
-        iv0 = npix_v/2 + np.round((vv/dv)).astype(int)
+        iv0 = npix_v//2 + np.round((vv/dv)).astype(int)
 
     index_arr = np.transpose(np.array((iu0, iv0)))
 
     # 2. Find the relative distance to this point (should be -0.5 du/v < val < 0.5 du/v)
+    print(iu0)
     u0 = uu - vis.uu[iu0]
     v0 = vv - vis.vv[iv0]
 

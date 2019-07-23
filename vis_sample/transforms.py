@@ -1,9 +1,9 @@
 # Here we define all of the necessary functions to FFT the model image and phase shift visibilities
 import numpy as np
-from constants import *
+from .constants import *
 from numpy.fft import fftfreq, rfftfreq, fftshift, fft2
-from gridding import *
-from classes import *
+from .gridding import *
+from .classes import *
 
 
 def transform(img):
@@ -63,7 +63,7 @@ def phase_shift(vis, uu, vv, mu_RA, mu_DEC):
     mu_DEC: Offset of right ascension from phase center (arcsec)
 
     Returns
-    _______ 
+    _______
     vis: 2D array of phase-shifted visibilities with shape (n visibilities, m channels)
     """
     # calculate the phase shift for each visibility

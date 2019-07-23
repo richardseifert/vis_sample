@@ -1,5 +1,5 @@
 import numpy as np
-from gridding import *
+from .gridding import *
 
 # SkyImage is a holder that has both RA and DEC increasing with array index
 # This convention is necessary for the FFT step
@@ -12,7 +12,7 @@ class SkyImage:
         if len(data.shape) == 2:
             self.data = np.reshape(data, (data.shape[0], data.shape[1], 1))
         else:
-            self.data = data # [Jy/pixel] 
+            self.data = data # [Jy/pixel]
         self.ra = ra # [arcsec]
         self.dec = dec # [arcsec]
         self.freqs = np.array(freqs) # [Hz]

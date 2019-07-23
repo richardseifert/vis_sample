@@ -3,8 +3,8 @@
 # we estimate the gcf by precalculating the gcf for a dense grid (1000x image res) and
 # then use these gcf values (for a massive speed increase)
 import numpy as np
-from gridding import *
-from classes import *
+from .gridding import *
+from .classes import *
 from numpy.lib.stride_tricks import as_strided
 
 
@@ -43,7 +43,7 @@ def create_gcf_holder(uu, vv, vis):
     """
     nu = uu.shape[0]
     nv = vv.shape[0]
-    
+
     # recall that in the vis, we are padded by 2 zeros on either side in both u and v
     npix_u = vis.uu.shape[0]
     npix_v = vis.vv.shape[0]
@@ -64,13 +64,13 @@ def create_gcf_holder(uu, vv, vis):
 
     index_arr = np.transpose(np.array((iu0, iv0)))
 
-    # 2. Find the relative distance to this point (should be -0.5 du/v < val < 0.5 du/v) 
+    # 2. Find the relative distance to this point (should be -0.5 du/v < val < 0.5 du/v)
     u0 = uu - vis.uu[iu0]
     v0 = vv - vis.vv[iv0]
 
     # 3. Now we take the relative distance and find the nearest dense grid point
     iu0_grid = np.ones(nu).astype(int)*500
-    iv0_grid = np.ones(nv).astype(int)*500    
+    iv0_grid = np.ones(nv).astype(int)*500
 
     if npix_u > 5:
         iu0_grid = 500-(1001*u0/du).astype(int)
@@ -88,7 +88,7 @@ def create_gcf_holder(uu, vv, vis):
     if npix_v == 5:
         vw = np.array([[0,0,1,0,0]]).astype(float)
 
-    # 5. Calculate the weights (outer product) and an array of the total weights 
+    # 5. Calculate the weights (outer product) and an array of the total weights
     all_weights = np.einsum('...a,...b->...ab', vw, uw)
     w_arr = np.einsum('...ab->...', all_weights)
 
@@ -98,7 +98,7 @@ def create_gcf_holder(uu, vv, vis):
 
 
 # The interpolation call will first calculate the gcf holder (if not provided), and then use
-# those values to calculate the interpolated visibilities. 
+# those values to calculate the interpolated visibilities.
 
 def interpolate_uv(uu, vv, vis, gcf_holder=None):
     """Calculate interpolated visibilities
@@ -108,7 +108,7 @@ def interpolate_uv(uu, vv, vis, gcf_holder=None):
     uu: 1D array of u coordinates from data
     vv: 1D array of v coordinates from data
     vis: ModelVisibility object
-    gcf_holder: gcf_holder object. If None, gcf_holder object will be computed. 
+    gcf_holder: gcf_holder object. If None, gcf_holder object will be computed.
 
     Returns
     _______
@@ -122,7 +122,7 @@ def interpolate_uv(uu, vv, vis, gcf_holder=None):
     # create the new interpolated visibility holder
     nvis = vv.shape[0]
     interp_vis = np.zeros((nvis, vis.freqs.shape[0]), dtype='complex')
-    
+
     # read out the pixel indices for windowing
     u0 = gcf_holder.index_arr[:, 0].astype(int)-2
     v0 = gcf_holder.index_arr[:, 1].astype(int)-2

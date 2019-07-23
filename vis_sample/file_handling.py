@@ -1,8 +1,8 @@
 import numpy as np
 import astropy.io.fits as pyfits
 import astropy.io.ascii as ascii
-from constants import *
-from transforms import *
+from .constants import *
+from .transforms import *
 import sys
 import shutil
 
@@ -46,13 +46,13 @@ def import_data_ms(filename):
     try:
         import casac
     except ImportError:
-        print "casac was not able to be imported, make sure all dependent packages are installed"
-        print "try: conda install -c pkgw casa-python casa-data"
+        print("casac was not able to be imported, make sure all dependent packages are installed")
+        print("try: conda install -c pkgw casa-python casa-data")
         sys.exit(1)
 
     tb = casac.casac.table()
     ms = casac.casac.ms()
-    
+
     # Use CASA table tools to get columns of UVW, DATA, WEIGHT, etc.
     tb.open(filename)
     data    = tb.getcol("DATA")
@@ -62,7 +62,7 @@ def import_data_ms(filename):
     ant2    = tb.getcol("ANTENNA2")
     flags    = tb.getcol("FLAG")
     tb.close()
-    
+
 
     # Use CASA ms tools to get the channel/spw info
     ms.open(filename)
@@ -124,7 +124,7 @@ def import_data_ms(filename):
 
         # if the majority of points in any channel are flagged, it probably means someone flagged an entire channel - spit warning
         if np.mean(flags.all(axis=0)) > 0.5:
-            print "WARNING: Over half of the (u,v) points in at least one channel are marked as flagged. If you didn't expect this, it is likely due to having an entire channel flagged in the ms. Please double check this and be careful if model fitting or using diff mode."
+            print("WARNING: Over half of the (u,v) points in at least one channel are marked as flagged. If you didn't expect this, it is likely due to having an entire channel flagged in the ms. Please double check this and be careful if model fitting or using diff mode.")
 
         # collapse flags to single channel, because weights are not currently channelized
         flags = flags.any(axis=0)
@@ -137,7 +137,7 @@ def import_data_ms(filename):
 
     #warning that flagged data was imported
     if np.any(flags):
-        print "WARNING: Flagged data was imported. Visibility interpolation can proceed normally, but be careful with chi^2 calculations."
+        print("WARNING: Flagged data was imported. Visibility interpolation can proceed normally, but be careful with chi^2 calculations.")
 
     # now remove all flagged data (we assume the user doesn't want to interpolate for these points)
     # commenting this out for now, but leaving infrastructure in place if desired later
@@ -164,13 +164,13 @@ def import_model_fits(filename):
     # need to check if this is a single channel image
     if len(mod_data.shape) < 3:
         mod_data = np.expand_dims(mod_data, axis=2)
-    else: 
+    else:
         # roll the channel dim to the end
         mod_data = np.rollaxis(mod_data, 0, 3)
 
     mhd = mod[0].header
 
-    # the assumption is that the RA and DEC are given in degrees, convert to arcsec 
+    # the assumption is that the RA and DEC are given in degrees, convert to arcsec
     npix_ra = mhd['NAXIS1']
     mid_pix_ra = mhd['CRPIX1']
     delt_ra = mhd['CDELT1']
@@ -198,7 +198,7 @@ def import_model_fits(filename):
         mod_vels = (np.arange(nchan_vel)-(mid_chan-1))*delt_vel + mid_chan_vel
     except:
         # remember that this is effectively a dummy placeholder, so this is sketchy but should probably be ok
-        mod_vels = [0] 
+        mod_vels = [0]
 
     return SkyImage(mod_data, mod_ra, mod_dec, mod_vels)
 
@@ -216,7 +216,7 @@ def import_model_radmc(src_distance, filename):
     iformat = imagefile.readline()
     im_nx, im_ny = map(int, imagefile.readline().split()) #number of pixels along x and y axes
     nlam = int(imagefile.readline())
-    pixsize_x, pixsize_y = map(float,imagefile.readline().split()) #pixel sizes in cm 
+    pixsize_x, pixsize_y = map(float,imagefile.readline().split()) #pixel sizes in cm
     # half pixel offset is because we need this sampled *as if* the shift has already been applied (see transform())
     mod_ra = (np.arange(im_nx) - im_nx/2.) * pixsize_x/(pc*src_distance*arcsec) #arcseconds
     mod_dec = (np.arange(im_ny) - im_ny/2.) * pixsize_y/(pc*src_distance*arcsec) #arcseconds
@@ -266,7 +266,7 @@ def export_uvfits_from_clone(vis, outfile, uvfits_clone):
     clone_data['data'] = np.expand_dims(np.expand_dims(np.expand_dims(data_array, 1),1),1)
 
     clone.writeto(outfile)
-    print "Wrote " + outfile
+    print("Wrote " + outfile)
 
 
 # ONLY CAN CLONE MS
@@ -283,14 +283,14 @@ def export_ms_from_clone(vis, outfile, ms_clone):
     try:
         import casac
     except ImportError:
-        print "casac was not able to be imported, make sure all dependent packages are installed"
-        print "try: conda install -c pkgw casa-python casa-data"
+        print("casac was not able to be imported, make sure all dependent packages are installed")
+        print("try: conda install -c pkgw casa-python casa-data")
         sys.exit(1)
 
     shutil.copytree(ms_clone, outfile)
 
     tb = casac.casac.table()
-    
+
     # Use CASA table tools to fill new DATA and WEIGHT
     tb.open(outfile, nomodify=False)
 
@@ -329,7 +329,7 @@ def export_ms_from_clone(vis, outfile, ms_clone):
         # now do the same with the weights
         weights = np.zeros((2, ant1.shape[0]))
         weights[0, xc] = np.mean(vis.wgts, axis=1)
-        weights[1, xc] = np.mean(vis.wgts, axis=1)   
+        weights[1, xc] = np.mean(vis.wgts, axis=1)
 
     # put the data and weights into the MS
     tb.putcol("DATA", data_array)
@@ -337,9 +337,9 @@ def export_ms_from_clone(vis, outfile, ms_clone):
 
     # if the MS had a corrected column, remove it (this happens with MS's created with simobserve")
     if ("CORRECTED_DATA" in tb.colnames()):
-        tb.removecols("CORRECTED_DATA") 
+        tb.removecols("CORRECTED_DATA")
 
     tb.flush()
     tb.close()
 
-    print "Wrote " + outfile
+    print("Wrote " + outfile)

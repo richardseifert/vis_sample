@@ -7,7 +7,7 @@ from .interpolation import interpolate_uv
 from .file_handling import *
 import time
 
-def vis_sample(imagefile=None, uvfile=None, uu=None, vv=None, mu_RA=0, mu_DEC=0, src_distance=None, gcf_holder=None, corr_cache=None, mode="interpolate", outfile=None, verbose=False, return_gcf=False, return_corr_cache=False):
+def vis_sample(imagefile=None, uvfile=None, uu=None, vv=None, mu_RA=0, mu_DEC=0, src_distance=None, gcf_holder=None, corr_cache=None, mode="interpolate", outfile=None, verbose=False, return_gcf=False, return_corr_cache=False,noise_inject=None):
     """Sample visibilities from a sky-brightness image
 
     vis_sample allows you to sample visibilities from a user-supplied sky-brightness image.
@@ -50,6 +50,8 @@ def vis_sample(imagefile=None, uvfile=None, uu=None, vv=None, mu_RA=0, mu_DEC=0,
     return_gcf - (boolean) flag to return the gcf cache to allow faster interpolation for many models
 
     return_corr_cache - (boolean) flag to return the correction function cache to allow faster interpolation for many models
+
+    noise_inject - (optional, float) noise to inject into the sampled visibilities when writing back to an MS. In units of mJy/bm for a naturally weighted dirty image. Requires outfile != None
 
 
     Usage::
@@ -295,9 +297,9 @@ def vis_sample(imagefile=None, uvfile=None, uu=None, vv=None, mu_RA=0, mu_DEC=0,
 
             # check to see what type of file we're cloning and exporting
             if "fits" in outfile:
-                export_uvfits_from_clone(interp_vis, outfile, uvfile)
+                export_uvfits_from_clone(interp_vis, outfile, uvfile, noise_inject)
             elif "ms" in outfile:
-                export_ms_from_clone(interp_vis, outfile, uvfile)
+                export_ms_from_clone(interp_vis, outfile, uvfile, noise_inject)
 
             # and we're done!
             return
@@ -314,9 +316,9 @@ def vis_sample(imagefile=None, uvfile=None, uu=None, vv=None, mu_RA=0, mu_DEC=0,
 
             # check to see what type of file we're cloning and exporting
             if "fits" in outfile:
-                export_uvfits_from_clone(interp_vis, outfile, uvfile)
+                export_uvfits_from_clone(interp_vis, outfile, uvfile, noise_inject)
             elif "ms" in outfile:
-                export_ms_from_clone(interp_vis, outfile, uvfile)
+                export_ms_from_clone(interp_vis, outfile, uvfile, noise_inject)
 
             # and we're done!
             return
